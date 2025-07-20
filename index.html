@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Loop Creator</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background-color: #333;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .tab.active {
+            background-color: #555;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            overflow: hidden;
+            resize: none;
+            min-height: 50px;
+        }
+        .slider-container {
+            margin: 10px 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        #library-list {
+            list-style: none;
+            padding: 0;
+        }
+        #library-list li {
+            background-color: #333;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        #library-list li .text {
+            width: 100%;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+        #library-list li .buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .delete-btn {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .stop-btn {
+            background-color: orange;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .play-btn {
+            background-color: green;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .move-up-btn {
+            background-color: #6f42c1;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .move-down-btn {
+            background-color: #d63384;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Loop Creator</h1>
+    
+    <div class="tab-container">
+        <div class="tab" data-section="create">Create</div>
+        <div class="tab" data-section="library">Library</div>
+    </div>
+    
+    <div id="create" class="section active">
+        <label for="text">Text to Repeat</label>
+        <textarea id="text" placeholder="Enter your affirmation"></textarea>
+        
+        <div class="slider-container">
+            <label>Sentence Interval</label>
+            <div class="slider-label">
+                <span>1s</span><span>4s</span>
+            </div>
+            <input type="range" id="interval" min="1" max="4" step="0.5" value="1">
+            <span id="interval-value">1s</span>
+        </div>
+        
+        <div class="slider-container">
+            <label>Speed</label>
+            <div class="slider-label">
+                <span>1x</span><span>2x</span>
+            </div>
+            <input type="range" id="speed" min="1" max="2" step="0.25" value="1">
+            <span id="speed-value">1x</span>
+        </div>
+        
+        <label>Voice Language</label>
+        <select id="voice">
+            <!-- Voices will be populated by JS -->
+        </select>
+        
+        <button id="play-preview">Play Preview</button>
+        <button id="save-loop">Save to Library</button>
+        <button id="stop-play">Stop</button>
+    </div>
+    
+    <div id="library" class="section">
+        <ul id="library-list"></ul>
+        <button id="play-all">Play All</button>
+        <button id="loop-all">Loop All</button>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.section');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.section).classList.add('active');
+                if (tab.dataset.section === 'library') {
+                    loadLibrary();
+                }
+            });
+        });
+
+        // Sliders
+        const intervalSlider = document.getElementById('interval');
+        const intervalValue = document.getElementById('interval-value');
+        intervalSlider.addEventListener('input', () => {
+            intervalValue.textContent = `${intervalSlider.value}s`;
+        });
+
+        const speedSlider = document.getElementById('speed');
+        const speedValue = document.getElementById('speed-value');
+        speedSlider.addEventListener('input', () => {
+            speedValue.textContent = `${speedSlider.value}x`;
+        });
+
+        // Voices
+        let voices = [];
+        const voiceSelect = document.getElementById('voice');
+        function populateVoices() {
+            voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+            if (voices.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'No English voices available';
+                voiceSelect.appendChild(option);
+            }
+        }
+        speechSynthesis.onvoiceschanged = populateVoices;
+        populateVoices(); // Initial call
+
+        // Textarea auto-grow and key handling
+        const textarea = document.getElementById('text');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        });
+        textarea.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                if (event.metaKey || event.ctrlKey) {
+                    // Allow default behavior: insert line break
+                } else {
+                    event.preventDefault();
+                    document.getElementById('play-preview').click();
+                }
+            }
+        });
+
+        // Speech loop for single item
+        let loopInterval;
+        let isPlaying = false;
+        function playLoop() {
+            const text = document.getElementById('text').value;
+            if (!text) return alert('Enter text');
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            const selectedVoiceIndex = voiceSelect.value;
+            if (selectedVoiceIndex !== '') {
+                utterance.voice = voices[selectedVoiceIndex];
+            }
+            utterance.rate = parseFloat(speedSlider.value);
+            
+            speechSynthesis.speak(utterance);
+            utterance.onend = () => {
+                if (isPlaying) {
+                    setTimeout(playLoop, parseFloat(intervalSlider.value) * 1000);
+                }
+            };
+        }
+
+        document.getElementById('play-preview').addEventListener('click', () => {
+            if (isPlaying) return;
+            isPlaying = true;
+            playLoop();
+        });
+
+        document.getElementById('stop-play').addEventListener('click', () => {
+            isPlaying = false;
+            speechSynthesis.cancel();
+        });
+
+        // Library
+        const libraryList = document.getElementById('library-list');
+        function loadLibrary() {
+            libraryList.innerHTML = '';
+            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
+            library.forEach((loop, index) => {
+                const li = document.createElement('li');
+                const textDiv = document.createElement('div');
+                textDiv.classList.add('text');
+                textDiv.textContent = loop.text;
+                li.appendChild(textDiv);
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.classList.add('buttons');
+                // Play button
+                const playBtn = document.createElement('button');
+                playBtn.textContent = 'Play';
+                playBtn.classList.add('play-btn');
+                playBtn.addEventListener('click', () => {
+                    document.getElementById('text').value = loop.text;
+                    textarea.dispatchEvent(new Event('input'));
+                    intervalSlider.value = loop.interval;
+                    intervalValue.textContent = `${loop.interval}s`;
+                    speedSlider.value = loop.speed;
+                    speedValue.textContent = `${loop.speed}x`;
+                    voiceSelect.value = loop.voiceIndex || 0;
+                    if (isPlaying) {
+                        document.getElementById('stop-play').click();
+                    }
+                    document.getElementById('play-preview').click();
+                });
+                // Stop button
+                const stopBtn = document.createElement('button');
+                stopBtn.textContent = 'Stop';
+                stopBtn.classList.add('stop-btn');
+                stopBtn.addEventListener('click', () => {
+                    isPlaying = false;
+                    speechSynthesis.cancel();
+                });
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    library.splice(index, 1);
+                    localStorage.setItem('audioLoops', JSON.stringify(library));
+                    loadLibrary();
+                });
+                // Move Up button
+                const moveUpBtn = document.createElement('button');
+                moveUpBtn.textContent = 'Up';
+                moveUpBtn.classList.add('move-up-btn');
+                moveUpBtn.addEventListener('click', () => {
+                    if (index > 0) {
+                        [library[index - 1], library[index]] = [library[index], library[index - 1]];
+                        localStorage.setItem('audioLoops', JSON.stringify(library));
+                        loadLibrary();
+                    }
+                });
+                // Move Down button
+                const moveDownBtn = document.createElement('button');
+                moveDownBtn.textContent = 'Down';
+                moveDownBtn.classList.add('move-down-btn');
+                moveDownBtn.addEventListener('click', () => {
+                    if (index < library.length - 1) {
+                        [library[index], library[index + 1]] = [library[index + 1], library[index]];
+                        localStorage.setItem('audioLoops', JSON.stringify(library));
+                        loadLibrary();
+                    }
+                });
+                buttonsDiv.appendChild(playBtn);
+                buttonsDiv.appendChild(stopBtn);
+                buttonsDiv.appendChild(deleteBtn);
+                buttonsDiv.appendChild(moveUpBtn);
+                buttonsDiv.appendChild(moveDownBtn);
+                li.appendChild(buttonsDiv);
+                libraryList.appendChild(li);
+            });
+        }
+
+        document.getElementById('save-loop').addEventListener('click', () => {
+            const text = document.getElementById('text').value;
+            if (!text) return alert('Enter text');
+            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
+            library.push({
+                text,
+                interval: parseFloat(intervalSlider.value),
+                speed: parseFloat(speedSlider.value),
+                voiceIndex: voiceSelect.value
+            });
+            localStorage.setItem('audioLoops', JSON.stringify(library));
+            loadLibrary();
+        });
+
+        // Play all functionality
+        let currentPlayIndex = 0;
+        let isLooping = false;
+        function playNext() {
+            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
+            if (currentPlayIndex >= library.length) {
+                if (isLooping && isPlaying) {
+                    currentPlayIndex = 0;
+                    playNext();
+                } else {
+                    isPlaying = false;
+                    return;
+                }
+            }
+            const loop = library[currentPlayIndex];
+            const utterance = new SpeechSynthesisUtterance(loop.text);
+            if (loop.voiceIndex !== undefined && loop.voiceIndex !== '') {
+                utterance.voice = voices[loop.voiceIndex];
+            }
+            utterance.rate = loop.speed;
+            utterance.onend = () => {
+                if (isPlaying) {
+                    setTimeout(() => {
+                        currentPlayIndex++;
+                        playNext();
+                    }, loop.interval * 1000);
+                }
+            };
+            speechSynthesis.speak(utterance);
+        }
+
+        document.getElementById('play-all').addEventListener('click', () => {
+            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
+            if (library.length === 0 || isPlaying) return;
+            isPlaying = true;
+            isLooping = false;
+            currentPlayIndex = 0;
+            playNext();
+        });
+
+        document.getElementById('loop-all').addEventListener('click', () => {
+            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
+            if (library.length === 0 || isPlaying) return;
+            isPlaying = true;
+            isLooping = true;
+            currentPlayIndex = 0;
+            playNext();
+        });
+    </script>
+</body>
+</html>
