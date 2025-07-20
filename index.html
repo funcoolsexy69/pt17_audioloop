@@ -114,6 +114,14 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .edit-btn {
+            background-color: blue;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .move-up-btn {
             background-color: #6f42c1;
             color: white;
@@ -316,6 +324,27 @@
                     isPlaying = false;
                     speechSynthesis.cancel();
                 });
+                // Edit button
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.classList.add('edit-btn');
+                editBtn.addEventListener('click', () => {
+                    document.getElementById('text').value = loop.text;
+                    textarea.dispatchEvent(new Event('input'));
+                    intervalSlider.value = loop.interval;
+                    intervalValue.textContent = `${loop.interval}s`;
+                    speedSlider.value = loop.speed;
+                    speedValue.textContent = `${loop.speed}x`;
+                    voiceSelect.value = loop.voiceIndex || 0;
+                    // Set editing mode
+                    editingIndex = index;
+                    document.getElementById('save-loop').textContent = 'Update';
+                    // Switch to Create tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.querySelector('.tab[data-section="create"]').classList.add('active');
+                    document.getElementById('create').classList.add('active');
+                });
                 // Delete button
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
@@ -349,6 +378,7 @@
                 });
                 buttonsDiv.appendChild(playBtn);
                 buttonsDiv.appendChild(stopBtn);
+                buttonsDiv.appendChild(editBtn);
                 buttonsDiv.appendChild(deleteBtn);
                 buttonsDiv.appendChild(moveUpBtn);
                 buttonsDiv.appendChild(moveDownBtn);
@@ -357,16 +387,25 @@
             });
         }
 
-        document.getElementById('save-loop').addEventListener('click', () => {
+        let editingIndex = -1;
+        const saveButton = document.getElementById('save-loop');
+        saveButton.addEventListener('click', () => {
             const text = document.getElementById('text').value;
             if (!text) return alert('Enter text');
             const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            library.push({
+            const newLoop = {
                 text,
                 interval: parseFloat(intervalSlider.value),
                 speed: parseFloat(speedSlider.value),
                 voiceIndex: voiceSelect.value
-            });
+            };
+            if (editingIndex !== -1) {
+                library[editingIndex] = newLoop;
+                editingIndex = -1;
+                saveButton.textContent = 'Save to Library';
+            } else {
+                library.push(newLoop);
+            }
             localStorage.setItem('audioLoops', JSON.stringify(library));
             loadLibrary();
         });
