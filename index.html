@@ -159,6 +159,9 @@
             padding: 5px 10px;
             margin-left: 10px;
         }
+        #remaining-time {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -209,6 +212,7 @@
             <label for="sleep-timer">Sleep Timer (minutes):</label>
             <input type="number" id="sleep-timer" min="1" value="30">
             <button id="set-sleep-timer">Set</button>
+            <span id="remaining-time"></span>
         </div>
     </div>
 
@@ -310,6 +314,16 @@
         document.getElementById('stop-play').addEventListener('click', () => {
             isPlaying = false;
             speechSynthesis.cancel();
+            if (sleepTimeout) {
+                clearTimeout(sleepTimeout);
+                sleepTimeout = null;
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            sleepEndTime = null;
+            document.getElementById('remaining-time').textContent = '';
         });
 
         // Library
@@ -349,6 +363,16 @@
                 stopBtn.addEventListener('click', () => {
                     isPlaying = false;
                     speechSynthesis.cancel();
+                    if (sleepTimeout) {
+                        clearTimeout(sleepTimeout);
+                        sleepTimeout = null;
+                    }
+                    if (countdownInterval) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                    }
+                    sleepEndTime = null;
+                    document.getElementById('remaining-time').textContent = '';
                 });
                 // Edit button
                 const editBtn = document.createElement('button');
@@ -484,15 +508,33 @@
 
         // Sleep timer
         let sleepTimeout = null;
+        let countdownInterval = null;
+        let sleepEndTime = null;
         document.getElementById('set-sleep-timer').addEventListener('click', () => {
             const minutes = parseInt(document.getElementById('sleep-timer').value);
             if (isNaN(minutes) || minutes <= 0) return alert('Enter a valid number of minutes');
             if (sleepTimeout) clearTimeout(sleepTimeout);
+            if (countdownInterval) clearInterval(countdownInterval);
+            sleepEndTime = Date.now() + minutes * 60 * 1000;
             sleepTimeout = setTimeout(() => {
                 isPlaying = false;
                 speechSynthesis.cancel();
-                sleepTimeout = null;
+                sleepEndTime = null;
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownInterval = null;
+                document.getElementById('remaining-time').textContent = '';
             }, minutes * 60 * 1000);
+            countdownInterval = setInterval(() => {
+                if (!sleepEndTime) return;
+                const remainingMs = sleepEndTime - Date.now();
+                if (remainingMs <= 0) {
+                    document.getElementById('remaining-time').textContent = '';
+                    return;
+                }
+                const remainingMin = Math.floor(remainingMs / 60000);
+                const remainingSec = Math.ceil((remainingMs % 60000) / 1000);
+                document.getElementById('remaining-time').textContent = `Remaining: ${remainingMin} min ${remainingSec} sec`;
+            }, 1000);
         });
     </script>
 </body>
