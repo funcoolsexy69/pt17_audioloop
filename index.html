@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mul">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Loop Creator</title>
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #f39af9;
+            color: #000000;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
         }
         h1 {
             text-align: center;
+            color: #ffffff;
         }
         .tab-container {
             display: flex;
@@ -21,13 +22,15 @@
             margin-bottom: 20px;
         }
         .tab {
-            background-color: #333;
+            background-color: #ffffff;
+            color: #f39af9;
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 5px;
         }
         .tab.active {
-            background-color: #555;
+            background-color: #d63384;
+            color: #ffffff;
         }
         .section {
             display: none;
@@ -39,9 +42,9 @@
             width: 100%;
             padding: 10px;
             margin: 10px 0;
-            background-color: #333;
-            color: #fff;
-            border: none;
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #f39af9;
             border-radius: 5px;
             overflow: hidden;
             resize: none;
@@ -50,32 +53,73 @@
         .slider-container {
             margin: 10px 0;
         }
+        .slider-container label {
+            color: #ffffff; /* White for Sentence Interval and Speed labels */
+        }
         .slider-label {
             display: flex;
             justify-content: space-between;
+            color: #ffffff; /* White for 1s, 4s, etc. */
+        }
+        .slider-label span {
+            color: #ffffff;
+        }
+        #interval-value, #speed-value {
+            color: #ffffff; /* White for value displays */
         }
         input[type="range"] {
             width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ffffff; /* White track */
+            outline: none;
+            border-radius: 5px;
+            height: 8px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #f39af9; /* Pink thumb */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #f39af9; /* Pink thumb */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-track {
+            background: #ffffff; /* White track */
+            border-radius: 5px;
+            height: 8px;
         }
         button {
             width: 100%;
             padding: 10px;
-            background-color: #fff;
-            color: #000;
+            background-color: #ffffff;
+            color: #f39af9;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             margin: 10px 0;
+        }
+        #create label {
+            color: #ffffff; /* White for all labels in Create section, including Text to Repeat and Voice Language */
         }
         #library-list {
             list-style: none;
             padding: 0;
         }
         #library-list li {
-            background-color: #333;
+            background-color: #ffffff;
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
+            border: 1px solid #f39af9;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -84,6 +128,7 @@
             width: 100%;
             margin-bottom: 10px;
             white-space: pre-wrap;
+            color: #000000;
         }
         #library-list li .buttons {
             display: flex;
@@ -91,48 +136,48 @@
             width: 100%;
         }
         .delete-btn {
-            background-color: red;
-            color: white;
+            background-color: #ff69b4;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         .stop-btn {
-            background-color: orange;
-            color: white;
+            background-color: #ffb6c1;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         .play-btn {
-            background-color: green;
-            color: white;
+            background-color: #f39af9;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         .edit-btn {
-            background-color: blue;
-            color: white;
+            background-color: #d63384;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         .move-up-btn {
-            background-color: #6f42c1;
-            color: white;
+            background-color: #ff1493;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         .move-down-btn {
-            background-color: #d63384;
-            color: white;
+            background-color: #ffc0cb;
+            color: #ffffff;
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
@@ -145,37 +190,41 @@
         }
         .sleep-timer-container label {
             margin-right: 10px;
+            color: #ffffff;
         }
         .sleep-timer-container input {
             width: 50px;
             padding: 5px;
-            background-color: #333;
-            color: #fff;
-            border: none;
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #f39af9;
             border-radius: 5px;
         }
         .sleep-timer-container button {
             width: auto;
             padding: 5px 10px;
             margin-left: 10px;
+            background-color: #ffffff;
+            color: #f39af9;
         }
         #remaining-time {
             margin-left: 10px;
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
     <h1>Audio Loop Creator</h1>
-    
+   
     <div class="tab-container">
         <div class="tab" data-section="create">Create</div>
         <div class="tab" data-section="library">Library</div>
     </div>
-    
+   
     <div id="create" class="section active">
         <label for="text">Text to Repeat</label>
         <textarea id="text" placeholder="Enter your affirmation"></textarea>
-        
+       
         <div class="slider-container">
             <label>Sentence Interval</label>
             <div class="slider-label">
@@ -184,7 +233,7 @@
             <input type="range" id="interval" min="1" max="4" step="0.5" value="1">
             <span id="interval-value">1s</span>
         </div>
-        
+       
         <div class="slider-container">
             <label>Speed</label>
             <div class="slider-label">
@@ -193,17 +242,17 @@
             <input type="range" id="speed" min="1" max="2" step="0.25" value="1">
             <span id="speed-value">1x</span>
         </div>
-        
+       
         <label>Voice Language</label>
         <select id="voice">
             <!-- Voices will be populated by JS -->
         </select>
-        
+       
         <button id="play-preview">Play Preview</button>
         <button id="save-loop">Save to Library</button>
         <button id="stop-play">Stop</button>
     </div>
-    
+   
     <div id="library" class="section">
         <ul id="library-list"></ul>
         <button id="play-all">Play All</button>
@@ -215,7 +264,6 @@
             <span id="remaining-time"></span>
         </div>
     </div>
-
     <script>
         // Tab switching
         const tabs = document.querySelectorAll('.tab');
@@ -231,41 +279,39 @@
                 }
             });
         });
-
         // Sliders
         const intervalSlider = document.getElementById('interval');
         const intervalValue = document.getElementById('interval-value');
         intervalSlider.addEventListener('input', () => {
             intervalValue.textContent = `${intervalSlider.value}s`;
         });
-
         const speedSlider = document.getElementById('speed');
         const speedValue = document.getElementById('speed-value');
         speedSlider.addEventListener('input', () => {
             speedValue.textContent = `${speedSlider.value}x`;
         });
-
         // Voices
         let voices = [];
         const voiceSelect = document.getElementById('voice');
         function populateVoices() {
             voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
             voiceSelect.innerHTML = '';
-            voices.forEach((voice, index) => {
+            // Prioritize Samantha for high-quality US English
+            let selectedVoice = voices.find(v => v.name.includes('Samantha')) ||
+                                voices.find(v => v.lang === 'en-US'); // Fallback to first en-US
+            if (selectedVoice) {
                 const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = voices.indexOf(selectedVoice);
+                option.textContent = `${selectedVoice.name} (${selectedVoice.lang})`;
                 voiceSelect.appendChild(option);
-            });
-            if (voices.length === 0) {
+            } else {
                 const option = document.createElement('option');
-                option.textContent = 'No English voices available';
+                option.textContent = 'No suitable voice available';
                 voiceSelect.appendChild(option);
             }
         }
         speechSynthesis.onvoiceschanged = populateVoices;
         populateVoices(); // Initial call
-
         // Textarea auto-grow and key handling
         const textarea = document.getElementById('text');
         textarea.addEventListener('input', () => {
@@ -282,21 +328,20 @@
                 }
             }
         });
-
         // Speech loop for single item
         let loopInterval;
         let isPlaying = false;
         function playLoop() {
             const text = document.getElementById('text').value;
             if (!text) return alert('Enter text');
-            
+           
             const utterance = new SpeechSynthesisUtterance(text);
             const selectedVoiceIndex = voiceSelect.value;
             if (selectedVoiceIndex !== '') {
                 utterance.voice = voices[selectedVoiceIndex];
             }
             utterance.rate = parseFloat(speedSlider.value);
-            
+           
             speechSynthesis.speak(utterance);
             utterance.onend = () => {
                 if (isPlaying) {
@@ -304,13 +349,11 @@
                 }
             };
         }
-
         document.getElementById('play-preview').addEventListener('click', () => {
             if (isPlaying) return;
             isPlaying = true;
             playLoop();
         });
-
         document.getElementById('stop-play').addEventListener('click', () => {
             isPlaying = false;
             speechSynthesis.cancel();
@@ -325,7 +368,6 @@
             sleepEndTime = null;
             document.getElementById('remaining-time').textContent = '';
         });
-
         // Library
         const libraryList = document.getElementById('library-list');
         function loadLibrary() {
@@ -436,7 +478,6 @@
                 libraryList.appendChild(li);
             });
         }
-
         let editingIndex = -1;
         const saveButton = document.getElementById('save-loop');
         saveButton.addEventListener('click', () => {
@@ -459,7 +500,6 @@
             localStorage.setItem('audioLoops', JSON.stringify(library));
             loadLibrary();
         });
-
         // Play all functionality
         let currentPlayIndex = 0;
         let isLooping = false;
@@ -487,7 +527,6 @@
             };
             speechSynthesis.speak(utterance);
         }
-
         document.getElementById('play-all').addEventListener('click', () => {
             const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
             if (library.length === 0 || isPlaying) return;
@@ -496,7 +535,6 @@
             currentPlayIndex = 0;
             playNext();
         });
-
         document.getElementById('loop-all').addEventListener('click', () => {
             const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
             if (library.length === 0 || isPlaying) return;
@@ -505,7 +543,6 @@
             currentPlayIndex = 0;
             playNext();
         });
-
         // Sleep timer
         let sleepTimeout = null;
         let countdownInterval = null;
