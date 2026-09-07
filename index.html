@@ -1,580 +1,851 @@
 <!DOCTYPE html>
 <html lang="mul">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Loop Creator</title>
-    <style>
-        body {
-            background-color: #f39af9;
-            color: #000000;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #ffffff;
-        }
-        .tab-container {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .tab {
-            background-color: #ffffff;
-            color: #f39af9;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .tab.active {
-            background-color: #d63384;
-            color: #ffffff;
-        }
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
-        textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #ffffff;
-            color: #000000;
-            border: 1px solid #f39af9;
-            border-radius: 5px;
-            overflow: hidden;
-            resize: none;
-            min-height: 50px;
-        }
-        .slider-container {
-            margin: 10px 0;
-        }
-        .slider-container label {
-            color: #ffffff; /* White for Sentence Interval and Speed labels */
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            color: #ffffff; /* White for 1s, 4s, etc. */
-        }
-        .slider-label span {
-            color: #ffffff;
-        }
-        #interval-value, #speed-value {
-            color: #ffffff; /* White for value displays */
-        }
-        input[type="range"] {
-            width: 100%;
-            -webkit-appearance: none;
-            appearance: none;
-            background: #ffffff; /* White track */
-            outline: none;
-            border-radius: 5px;
-            height: 8px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #f39af9; /* Pink thumb */
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #f39af9; /* Pink thumb */
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        input[type="range"]::-moz-range-track {
-            background: #ffffff; /* White track */
-            border-radius: 5px;
-            height: 8px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #ffffff;
-            color: #f39af9;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        #create label {
-            color: #ffffff; /* White for all labels in Create section, including Text to Repeat and Voice Language */
-        }
-        #library-list {
-            list-style: none;
-            padding: 0;
-        }
-        #library-list li {
-            background-color: #ffffff;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #f39af9;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        #library-list li .text {
-            width: 100%;
-            margin-bottom: 10px;
-            white-space: pre-wrap;
-            color: #000000;
-        }
-        #library-list li .buttons {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .delete-btn {
-            background-color: #e67e22;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .stop-btn {
-            background-color: #e74c3c;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .play-btn {
-            background-color: #2ecc71;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .edit-btn {
-            background-color: #3498db;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .move-up-btn {
-            background-color: #f1c40f;
-            color: #000000; /* Black text for better contrast on yellow */
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .move-down-btn {
-            background-color: #9b59b6;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .sleep-timer-container {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        .sleep-timer-container label {
-            margin-right: 10px;
-            color: #ffffff;
-        }
-        .sleep-timer-container input {
-            width: 50px;
-            padding: 5px;
-            background-color: #ffffff;
-            color: #000000;
-            border: 1px solid #f39af9;
-            border-radius: 5px;
-        }
-        .sleep-timer-container button {
-            width: auto;
-            padding: 5px 10px;
-            margin-left: 10px;
-            background-color: #ffffff;
-            color: #f39af9;
-        }
-        #remaining-time {
-            margin-left: 10px;
-            color: #ffffff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Loop Creator</title>
+  <meta name="theme-color" content="#f39af9">
+  <meta name="description" content="Loop spoken affirmations with your device voice, a library, and a sleep timer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d63384'/%3E%3Cpath d='M7 16c0-5 4-9 9-9s9 4 9 9' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M11 16a5 5 0 1 1 10 0' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='2.4' fill='%23fff'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --pink: #f39af9;
+      --accent: #d63384;
+      --white: #ffffff;
+      --ink: #111111;
+      --play: #2ecc71;
+      --stop: #e74c3c;
+      --edit: #3498db;
+      --del: #e67e22;
+      --up: #f1c40f;
+      --down: #9b59b6;
+      --muted: #9a3d73;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--pink);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body { padding: 20px 16px 48px; }
+    .wrap { max-width: 560px; margin: 0 auto; }
+    h1 {
+      text-align: center;
+      color: var(--white);
+      font-size: 1.85rem;
+      margin: 8px 0 6px;
+      font-weight: 700;
+    }
+    .sub {
+      text-align: center;
+      color: var(--white);
+      font-size: 0.9rem;
+      margin: 0 0 18px;
+      opacity: 0.95;
+    }
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      justify-content: space-around;
+      margin-bottom: 18px;
+    }
+    .tab {
+      flex: 1;
+      background: var(--white);
+      color: var(--pink);
+      padding: 12px 16px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 700;
+      min-height: 44px;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    label.field {
+      display: block;
+      color: var(--white);
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    textarea, select, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 12px;
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--pink);
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    textarea {
+      overflow: hidden;
+      resize: none;
+      min-height: 72px;
+      line-height: 1.45;
+    }
+    .slider-container { margin: 12px 0 16px; }
+    .slider-container label {
+      color: var(--white);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider-ends {
+      display: flex;
+      justify-content: space-between;
+      color: var(--white);
+      font-size: 0.8rem;
+      margin: 4px 0 2px;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 28px;
+    }
+    .hint { color: var(--white); font-size: 0.8rem; margin: -6px 0 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .btn {
+      background: var(--white);
+      color: var(--pink);
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      min-height: 44px;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-play { background: var(--play); color: var(--white); }
+    .btn-stop { background: var(--stop); color: var(--white); }
+    .btn-edit { background: var(--edit); color: var(--white); }
+    .btn-del { background: var(--del); color: var(--white); }
+    .btn-up { background: var(--up); color: var(--ink); }
+    .btn-down { background: var(--down); color: var(--white); }
+    .banner {
+      background: var(--white);
+      color: var(--accent);
+      border-radius: 5px;
+      padding: 10px 12px;
+      margin: 0 0 14px;
+      font-size: 0.9rem;
+    }
+    .banner.error { color: var(--stop); }
+    .card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .card p { margin: 0 0 10px; white-space: pre-wrap; line-height: 1.45; }
+    .meta { color: var(--muted); font-size: 0.8rem; margin-bottom: 10px; }
+    .empty {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .now {
+      position: sticky;
+      bottom: 0;
+      background: var(--white);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    .now.show { display: flex; }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--play); flex-shrink: 0;
+    }
+    .now-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sleep-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .sleep-row label { color: var(--white); font-weight: 700; }
+    .sleep-row input { width: 88px; margin: 0; }
+    #remaining-time { color: var(--white); font-weight: 700; }
+    .save-html {
+      display: none;
+      background: var(--white);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 0 0 16px;
+      text-align: center;
+    }
+    .save-html p {
+      margin: 0 0 10px;
+      color: var(--ink);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .save-html .btn { width: 100%; }
+  </style>
 </head>
 <body>
+  <div class="wrap">
     <h1>Audio Loop Creator</h1>
- 
+    <p class="sub">Speak an affirmation on a loop. Korean and other device voices work here.</p>
+    <div class="save-html" id="save-html">
+      <p>이 앱은 <strong>파일 하나짜리 HTML</strong>입니다. 저장한 뒤 Chrome에서 여세요. 미리보기에서는 음성이 막힐 수 있습니다.</p>
+      <button type="button" class="btn" id="download-html">AudioLoopCreator.html 저장</button>
+    </div>
+    <div id="banner" class="banner" hidden></div>
     <div class="tab-container">
-        <div class="tab" data-section="create">Create</div>
-        <div class="tab" data-section="library">Library</div>
+      <button type="button" class="tab active" data-tab="create">Create</button>
+      <button type="button" class="tab" data-tab="library">Library</button>
     </div>
- 
-    <div id="create" class="section active">
-        <label for="text">Text to Repeat</label>
-        <textarea id="text" placeholder="Enter your affirmation"></textarea>
-     
-        <div class="slider-container">
-            <label>Sentence Interval</label>
-            <div class="slider-label">
-                <span>1s</span><span>4s</span>
-            </div>
-            <input type="range" id="interval" min="1" max="4" step="0.5" value="1">
-            <span id="interval-value">1s</span>
-        </div>
-     
-        <div class="slider-container">
-            <label>Speed</label>
-            <div class="slider-label">
-                <span>1x</span><span>2x</span>
-            </div>
-            <input type="range" id="speed" min="1" max="2" step="0.25" value="1">
-            <span id="speed-value">1x</span>
-        </div>
-     
-        <label>Voice Language</label>
-        <select id="voice">
-            <!-- Voices will be populated by JS -->
-        </select>
-     
-        <button id="play-preview">Play Preview</button>
-        <button id="save-loop">Save to Library</button>
-        <button id="stop-play">Stop</button>
+
+    <section id="create" class="section active">
+      <label class="field" for="text-to-repeat">Text to Repeat</label>
+      <textarea id="text-to-repeat" placeholder="I am calm, capable, and at ease."></textarea>
+      <p class="hint">Enter plays a preview.</p>
+
+      <div class="slider-container">
+        <label for="interval">Sentence Interval <span id="interval-value">1.0s</span></label>
+        <div class="slider-ends"><span>1s</span><span>4s</span></div>
+        <input id="interval" type="range" min="1" max="4" step="0.5" value="1">
+      </div>
+      <div class="slider-container">
+        <label for="speed">Speed <span id="speed-value">1.00x</span></label>
+        <div class="slider-ends"><span>1x</span><span>2x</span></div>
+        <input id="speed" type="range" min="1" max="2" step="0.25" value="1">
+      </div>
+
+      <label class="field" for="voice">Voice</label>
+      <select id="voice">
+        <option value="">Auto · match text language</option>
+      </select>
+      <p class="hint" id="voice-hint">Voices load from your device. Chrome and Safari work best.</p>
+
+      <div class="row">
+        <button type="button" class="btn" id="play-preview">Play Preview</button>
+        <button type="button" class="btn" id="save-to-library">Save to Library</button>
+        <button type="button" class="btn" id="stop-create" disabled>Stop</button>
+      </div>
+    </section>
+
+    <section id="library" class="section">
+      <div id="library-list"></div>
+      <div class="row">
+        <button type="button" class="btn" id="play-all">Play All</button>
+        <button type="button" class="btn" id="loop-all">Loop All</button>
+      </div>
+      <div class="sleep-row">
+        <label for="sleep-timer">Sleep Timer (minutes)</label>
+        <input id="sleep-timer" type="number" min="1" value="30">
+        <button type="button" class="btn" id="set-sleep-timer">Set</button>
+        <button type="button" class="btn" id="clear-sleep-timer" hidden>Clear</button>
+        <span id="remaining-time"></span>
+      </div>
+    </section>
+
+    <div class="now" id="now">
+      <span class="dot"></span>
+      <span class="now-text" id="now-text"></span>
+      <button type="button" class="btn btn-stop" id="stop-now">Stop</button>
     </div>
- 
-    <div id="library" class="section">
-        <ul id="library-list"></ul>
-        <button id="play-all">Play All</button>
-        <button id="loop-all">Loop All</button>
-        <div class="sleep-timer-container">
-            <label for="sleep-timer">Sleep Timer (minutes):</label>
-            <input type="number" id="sleep-timer" min="1" value="30">
-            <button id="set-sleep-timer">Set</button>
-            <span id="remaining-time"></span>
-        </div>
-    </div>
-    <script>
-        // Tab switching
-        const tabs = document.querySelectorAll('.tab');
-        const sections = document.querySelectorAll('.section');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                sections.forEach(s => s.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.section).classList.add('active');
-                if (tab.dataset.section === 'library') {
-                    loadLibrary();
-                }
-            });
-        });
-        // Sliders
-        const intervalSlider = document.getElementById('interval');
-        const intervalValue = document.getElementById('interval-value');
-        intervalSlider.addEventListener('input', () => {
-            intervalValue.textContent = `${intervalSlider.value}s`;
-        });
-        const speedSlider = document.getElementById('speed');
-        const speedValue = document.getElementById('speed-value');
-        speedSlider.addEventListener('input', () => {
-            speedValue.textContent = `${speedSlider.value}x`;
-        });
-        // Voices
-        let voices = [];
-        const voiceSelect = document.getElementById('voice');
-        function populateVoices() {
-            voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-            voiceSelect.innerHTML = '';
-            // Prioritize natural American voices: Premium, Google, Samantha, or Siri
-            const preferredVoice = voices.find(voice => voice.lang === 'en-US' && (voice.name.includes('Premium') || voice.name.includes('Google') || voice.name.includes('Samantha') || voice.name.includes('Siri')))
-                || voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Natural'))
-                || voices.find(voice => voice.lang === 'en-US')
-                || voices.find(voice => voice.lang.startsWith('en'));
-            if (preferredVoice) {
-                const option = document.createElement('option');
-                option.value = voices.indexOf(preferredVoice);
-                option.textContent = `${preferredVoice.name} (${preferredVoice.lang})`;
-                voiceSelect.appendChild(option);
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'No suitable voice available';
-                voiceSelect.appendChild(option);
-            }
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const STORE_KEY = "audioLoops.v2";
+  const LEGACY_KEY = "audioLoops";
+  const FILE_NAME = "AudioLoopCreator.html";
+
+  const $ = (id) => document.getElementById(id);
+  const textEl = $("text-to-repeat");
+  const intervalEl = $("interval");
+  const speedEl = $("speed");
+  const voiceEl = $("voice");
+  const bannerEl = $("banner");
+  const listEl = $("library-list");
+  const nowEl = $("now");
+  const nowText = $("now-text");
+
+  let editingId = null;
+  let voicesCache = [];
+  let heldUtterance = null;
+  let resumeWatch = null;
+  let startWatch = null;
+  let sleepTimeout = null;
+  let countdownInterval = null;
+  let sleepEndTime = null;
+
+  function supported() {
+    return "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+  }
+
+  function showBanner(msg, isError) {
+    if (!msg) {
+      bannerEl.hidden = true;
+      bannerEl.textContent = "";
+      return;
+    }
+    bannerEl.hidden = false;
+    bannerEl.textContent = msg;
+    bannerEl.classList.toggle("error", !!isError);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => {
+      if (c === "&") return "&" + "amp;";
+      if (c === "<") return "&" + "lt;";
+      if (c === ">") return "&" + "gt;";
+      if (c === '"') return "&" + "quot;";
+      return "&#" + "39;";
+    });
+  }
+
+  function uid() {
+    return (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random().toString(36).slice(2);
+  }
+
+  function detectLang(text) {
+    if (/[\uac00-\ud7a3]/.test(text)) return "ko-KR";
+    if (/[\u3040-\u30ff]/.test(text)) return "ja-JP";
+    if (/[\u4e00-\u9fff]/.test(text)) return "zh-CN";
+    if (/[\u0400-\u04ff]/.test(text)) return "ru-RU";
+    if (/[\u0600-\u06ff]/.test(text)) return "ar-SA";
+    return "en-US";
+  }
+
+  function langPrefix(lang) {
+    return (lang || "").slice(0, 2).toLowerCase();
+  }
+
+  function refreshVoices() {
+    if (!supported()) return;
+    const next = window.speechSynthesis.getVoices();
+    if (next.length) voicesCache = next;
+  }
+
+  function pickVoice(voiceId, lang) {
+    refreshVoices();
+    if (voiceId) {
+      const exact = voicesCache.find((v) => v.voiceURI === voiceId || v.name === voiceId);
+      if (exact) return exact;
+    }
+    const prefix = langPrefix(lang);
+    const matches = voicesCache.filter((v) => v.lang.toLowerCase().startsWith(prefix));
+    return (
+      matches.find((v) => v.localService && v.default) ||
+      matches.find((v) => v.localService) ||
+      matches.find((v) => v.default) ||
+      matches[0] ||
+      voicesCache.find((v) => v.default) ||
+      voicesCache[0]
+    );
+  }
+
+  const LANG_LABELS = { ko: "Korean", en: "English", ja: "Japanese", zh: "Chinese", es: "Spanish", fr: "French", de: "German" };
+
+  function renderVoices() {
+    refreshVoices();
+    const current = voiceEl.value;
+    const groups = {};
+    voicesCache.forEach((v) => {
+      const key = langPrefix(v.lang) || "other";
+      (groups[key] || (groups[key] = [])).push(v);
+    });
+    const order = ["ko", "en", "ja", "zh", "es", "fr", "de"];
+    let html = '<option value="">Auto · match text language</option>';
+    const used = {};
+    function addGroup(key) {
+      const items = groups[key];
+      if (!items || !items.length) return;
+      used[key] = true;
+      html += '<optgroup label="' + escapeHtml(LANG_LABELS[key] || key.toUpperCase()) + '">';
+      items.forEach((v) => {
+        html += '<option value="' + escapeHtml(v.voiceURI || v.name) + '">' +
+          escapeHtml(v.name + " (" + v.lang + ")") + "</option>";
+      });
+      html += "</optgroup>";
+    }
+    order.forEach(addGroup);
+    Object.keys(groups).forEach((k) => { if (!used[k]) addGroup(k); });
+    voiceEl.innerHTML = html;
+    if ([].some.call(voiceEl.options, function (o) { return o.value === current; })) voiceEl.value = current;
+    const n = voicesCache.length;
+    $("voice-hint").textContent = n
+      ? n + " voices ready on this device"
+      : "Waiting for system voices…";
+  }
+
+  function primeSpeech() {
+    if (!supported()) return;
+    refreshVoices();
+    try { window.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+  }
+
+  function stopResumeWatch() {
+    if (resumeWatch) { clearInterval(resumeWatch); resumeWatch = null; }
+    if (startWatch) { clearTimeout(startWatch); startWatch = null; }
+  }
+
+  function startResumeWatch() {
+    stopResumeWatch();
+    resumeWatch = setInterval(function () {
+      const s = window.speechSynthesis;
+      if (s.speaking && s.paused) {
+        try { s.resume(); } catch (e) { /* ignore */ }
+      }
+    }, 250);
+  }
+
+  function cancelSpeech() {
+    stopResumeWatch();
+    if (!supported()) return;
+    try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+  }
+
+  function speakOnce(spec) {
+    if (!supported()) return Promise.resolve("error");
+    const text = (spec.text || "").trim();
+    if (!text) return Promise.resolve("error");
+    refreshVoices();
+    const lang = spec.lang || detectLang(text);
+    const voice = pickVoice(spec.voiceId, lang);
+    const rate = Math.min(2, Math.max(0.5, spec.speed || 1));
+
+    return new Promise(function (resolve) {
+      var settled = false;
+      var silentWatch = null;
+      function finish(reason) {
+        if (settled) return;
+        settled = true;
+        if (silentWatch) clearTimeout(silentWatch);
+        stopResumeWatch();
+        resolve(reason);
+      }
+
+      var utterance = new SpeechSynthesisUtterance(text);
+      heldUtterance = utterance;
+      utterance.rate = rate;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang || lang;
+      } else {
+        utterance.lang = lang;
+      }
+      utterance.onend = function () { finish("end"); };
+      utterance.onerror = function (event) {
+        var err = event.error;
+        if (err === "interrupted" || err === "canceled") finish("interrupted");
+        else finish("error");
+      };
+      utterance.onstart = function () {
+        if (startWatch) { clearTimeout(startWatch); startWatch = null; }
+        startResumeWatch();
+      };
+
+      try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+
+      setTimeout(function () {
+        if (settled) return;
+        try { window.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+        window.speechSynthesis.speak(utterance);
+        try { window.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+        startWatch = setTimeout(function () {
+          if (settled) return;
+          if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+            window.speechSynthesis.speak(utterance);
+            try { window.speechSynthesis.resume(); } catch (e) { /* ignore */ }
+          }
+        }, 500);
+      }, 40);
+
+      silentWatch = setTimeout(function () {
+        if (settled) return;
+        if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) finish("error");
+      }, 2800);
+    });
+  }
+
+  function delay(ms, isActive) {
+    return new Promise(function (resolve) {
+      if (ms <= 0 || !isActive()) { resolve(); return; }
+      var id = setTimeout(resolve, ms);
+      var poll = setInterval(function () {
+        if (!isActive()) {
+          clearTimeout(id);
+          clearInterval(poll);
+          resolve();
         }
-        speechSynthesis.onvoiceschanged = populateVoices;
-        populateVoices(); // Initial call
-        // Textarea auto-grow and key handling
-        const textarea = document.getElementById('text');
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        });
-        textarea.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                if (event.metaKey || event.ctrlKey) {
-                    // Allow default behavior: insert line break
-                } else {
-                    event.preventDefault();
-                    document.getElementById('play-preview').click();
-                }
-            }
-        });
-        // Speech loop for single item
-        let loopInterval;
-        let isPlaying = false;
-        function playLoop() {
-            const text = document.getElementById('text').value;
-            if (!text) return alert('Enter text');
-         
-            const utterance = new SpeechSynthesisUtterance(text);
-            const selectedVoiceIndex = voiceSelect.value;
-            if (selectedVoiceIndex !== '') {
-                utterance.voice = voices[selectedVoiceIndex];
-            }
-            utterance.rate = parseFloat(speedSlider.value);
-         
-            speechSynthesis.speak(utterance);
-            utterance.onend = () => {
-                if (isPlaying) {
-                    setTimeout(playLoop, parseFloat(intervalSlider.value) * 1000);
-                }
-            };
+      }, 80);
+      setTimeout(function () { clearInterval(poll); }, ms + 20);
+    });
+  }
+
+  var player = {
+    generation: 0,
+    running: false,
+    queue: [],
+    index: 0,
+    looping: false,
+    nowPlaying: null,
+    stop: function (error) {
+      this.generation += 1;
+      this.running = false;
+      this.queue = [];
+      this.index = 0;
+      this.nowPlaying = null;
+      cancelSpeech();
+      updatePlayingUI();
+      if (error) showBanner(error, true);
+    },
+    play: function (specs, looping) {
+      var cleaned = specs.map(function (s) {
+        return Object.assign({}, s, { text: (s.text || "").trim() });
+      }).filter(function (s) { return s.text; });
+      if (!cleaned.length) { showBanner("Enter text to play.", true); return; }
+      if (!supported()) {
+        showBanner("Speech is not supported in this browser. Try Chrome or Safari.", true);
+        return;
+      }
+      primeSpeech();
+      this.generation += 1;
+      var gen = this.generation;
+      this.queue = cleaned;
+      this.index = 0;
+      this.looping = looping;
+      this.running = true;
+      showBanner("");
+      updatePlayingUI();
+      this.run(gen);
+    },
+    run: async function (gen) {
+      while (this.running && gen === this.generation) {
+        var spec = this.queue[this.index];
+        if (!spec) break;
+        this.nowPlaying = spec.text;
+        updatePlayingUI();
+        var result = await speakOnce(spec);
+        if (gen !== this.generation || !this.running) return;
+        if (result === "interrupted") { this.stop(); return; }
+        if (result === "error") {
+          var error = voicesCache.length === 0
+            ? "No system voice is available yet. Wait a moment and press Play again."
+            : "This voice skipped the line. Try another voice, or a shorter sentence.";
+          showBanner(error, true);
+          if (voicesCache.length === 0) { this.stop(error); return; }
         }
-        document.getElementById('play-preview').addEventListener('click', () => {
-            if (isPlaying) return;
-            isPlaying = true;
-            playLoop();
+        await delay(Math.max(0, (spec.interval || 0) * 1000), function () {
+          return player.running && gen === player.generation;
         });
-        document.getElementById('stop-play').addEventListener('click', () => {
-            isPlaying = false;
-            speechSynthesis.cancel();
-            if (sleepTimeout) {
-                clearTimeout(sleepTimeout);
-                sleepTimeout = null;
-            }
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-            }
-            sleepEndTime = null;
-            document.getElementById('remaining-time').textContent = '';
-        });
-        // Library
-        const libraryList = document.getElementById('library-list');
-        function loadLibrary() {
-            libraryList.innerHTML = '';
-            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            library.forEach((loop, index) => {
-                const li = document.createElement('li');
-                const textDiv = document.createElement('div');
-                textDiv.classList.add('text');
-                textDiv.textContent = loop.text;
-                li.appendChild(textDiv);
-                const buttonsDiv = document.createElement('div');
-                buttonsDiv.classList.add('buttons');
-                // Play button
-                const playBtn = document.createElement('button');
-                playBtn.textContent = 'Play';
-                playBtn.classList.add('play-btn');
-                playBtn.addEventListener('click', () => {
-                    document.getElementById('text').value = loop.text;
-                    textarea.dispatchEvent(new Event('input'));
-                    intervalSlider.value = loop.interval;
-                    intervalValue.textContent = `${loop.interval}s`;
-                    speedSlider.value = loop.speed;
-                    speedValue.textContent = `${loop.speed}x`;
-                    voiceSelect.value = loop.voiceIndex || 0;
-                    if (isPlaying) {
-                        document.getElementById('stop-play').click();
-                    }
-                    document.getElementById('play-preview').click();
-                });
-                // Stop button
-                const stopBtn = document.createElement('button');
-                stopBtn.textContent = 'Stop';
-                stopBtn.classList.add('stop-btn');
-                stopBtn.addEventListener('click', () => {
-                    isPlaying = false;
-                    speechSynthesis.cancel();
-                    if (sleepTimeout) {
-                        clearTimeout(sleepTimeout);
-                        sleepTimeout = null;
-                    }
-                    if (countdownInterval) {
-                        clearInterval(countdownInterval);
-                        countdownInterval = null;
-                    }
-                    sleepEndTime = null;
-                    document.getElementById('remaining-time').textContent = '';
-                });
-                // Edit button
-                const editBtn = document.createElement('button');
-                editBtn.textContent = 'Edit';
-                editBtn.classList.add('edit-btn');
-                editBtn.addEventListener('click', () => {
-                    document.getElementById('text').value = loop.text;
-                    textarea.dispatchEvent(new Event('input'));
-                    intervalSlider.value = loop.interval;
-                    intervalValue.textContent = `${loop.interval}s`;
-                    speedSlider.value = loop.speed;
-                    speedValue.textContent = `${loop.speed}x`;
-                    voiceSelect.value = loop.voiceIndex || 0;
-                    // Set editing mode
-                    editingIndex = index;
-                    document.getElementById('save-loop').textContent = 'Update';
-                    // Switch to Create tab
-                    tabs.forEach(t => t.classList.remove('active'));
-                    sections.forEach(s => s.classList.remove('active'));
-                    document.querySelector('.tab[data-section="create"]').classList.add('active');
-                    document.getElementById('create').classList.add('active');
-                });
-                // Delete button
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.classList.add('delete-btn');
-                deleteBtn.addEventListener('click', () => {
-                    library.splice(index, 1);
-                    localStorage.setItem('audioLoops', JSON.stringify(library));
-                    loadLibrary();
-                });
-                // Move Up button
-                const moveUpBtn = document.createElement('button');
-                moveUpBtn.textContent = 'Up';
-                moveUpBtn.classList.add('move-up-btn');
-                moveUpBtn.addEventListener('click', () => {
-                    if (index > 0) {
-                        [library[index - 1], library[index]] = [library[index], library[index - 1]];
-                        localStorage.setItem('audioLoops', JSON.stringify(library));
-                        loadLibrary();
-                    }
-                });
-                // Move Down button
-                const moveDownBtn = document.createElement('button');
-                moveDownBtn.textContent = 'Down';
-                moveDownBtn.classList.add('move-down-btn');
-                moveDownBtn.addEventListener('click', () => {
-                    if (index < library.length - 1) {
-                        [library[index], library[index + 1]] = [library[index + 1], library[index]];
-                        localStorage.setItem('audioLoops', JSON.stringify(library));
-                        loadLibrary();
-                    }
-                });
-                buttonsDiv.appendChild(playBtn);
-                buttonsDiv.appendChild(stopBtn);
-                buttonsDiv.appendChild(editBtn);
-                buttonsDiv.appendChild(deleteBtn);
-                buttonsDiv.appendChild(moveUpBtn);
-                buttonsDiv.appendChild(moveDownBtn);
-                li.appendChild(buttonsDiv);
-                libraryList.appendChild(li);
-            });
+        if (gen !== this.generation || !this.running) return;
+        this.index += 1;
+        if (this.index >= this.queue.length) {
+          if (!this.looping) { this.stop(); return; }
+          this.index = 0;
         }
-        let editingIndex = -1;
-        const saveButton = document.getElementById('save-loop');
-        saveButton.addEventListener('click', () => {
-            const text = document.getElementById('text').value;
-            if (!text) return alert('Enter text');
-            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            const newLoop = {
-                text,
-                interval: parseFloat(intervalSlider.value),
-                speed: parseFloat(speedSlider.value),
-                voiceIndex: voiceSelect.value
-            };
-            if (editingIndex !== -1) {
-                library[editingIndex] = newLoop;
-                editingIndex = -1;
-                saveButton.textContent = 'Save to Library';
-            } else {
-                library.push(newLoop);
-            }
-            localStorage.setItem('audioLoops', JSON.stringify(library));
-            loadLibrary();
-        });
-        // Play all functionality
-        let currentPlayIndex = 0;
-        let isLooping = false;
-        function playNext() {
-            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            if (!isPlaying) return;
-            if (currentPlayIndex >= library.length) {
-                if (!isLooping) {
-                    isPlaying = false;
-                    return;
-                }
-                currentPlayIndex = 0;
-            }
-            const loop = library[currentPlayIndex];
-            const utterance = new SpeechSynthesisUtterance(loop.text);
-            if (loop.voiceIndex !== undefined && loop.voiceIndex !== '') {
-                utterance.voice = voices[loop.voiceIndex];
-            }
-            utterance.rate = loop.speed;
-            utterance.onend = () => {
-                setTimeout(() => {
-                    currentPlayIndex++;
-                    playNext();
-                }, loop.interval * 1000);
-            };
-            speechSynthesis.speak(utterance);
-        }
-        document.getElementById('play-all').addEventListener('click', () => {
-            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            if (library.length === 0 || isPlaying) return;
-            isPlaying = true;
-            isLooping = false;
-            currentPlayIndex = 0;
-            playNext();
-        });
-        document.getElementById('loop-all').addEventListener('click', () => {
-            const library = JSON.parse(localStorage.getItem('audioLoops') || '[]');
-            if (library.length === 0 || isPlaying) return;
-            isPlaying = true;
-            isLooping = true;
-            currentPlayIndex = 0;
-            playNext();
-        });
-        // Sleep timer
-        let sleepTimeout = null;
-        let countdownInterval = null;
-        let sleepEndTime = null;
-        document.getElementById('set-sleep-timer').addEventListener('click', () => {
-            const minutes = parseInt(document.getElementById('sleep-timer').value);
-            if (isNaN(minutes) || minutes <= 0) return alert('Enter a valid number of minutes');
-            if (sleepTimeout) clearTimeout(sleepTimeout);
-            if (countdownInterval) clearInterval(countdownInterval);
-            sleepEndTime = Date.now() + minutes * 60 * 1000;
-            sleepTimeout = setTimeout(() => {
-                isPlaying = false;
-                speechSynthesis.cancel();
-                sleepEndTime = null;
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownInterval = null;
-                document.getElementById('remaining-time').textContent = '';
-            }, minutes * 60 * 1000);
-            countdownInterval = setInterval(() => {
-                if (!sleepEndTime) return;
-                const remainingMs = sleepEndTime - Date.now();
-                if (remainingMs <= 0) {
-                    document.getElementById('remaining-time').textContent = '';
-                    return;
-                }
-                const remainingMin = Math.floor(remainingMs / 60000);
-                const remainingSec = Math.ceil((remainingMs % 60000) / 1000);
-                document.getElementById('remaining-time').textContent = `Remaining: ${remainingMin} min ${remainingSec} sec`;
-            }, 1000);
-        });
-    </script>
+      }
+    }
+  };
+
+  function currentSpec() {
+    var text = textEl.value.trim();
+    return {
+      text: text,
+      interval: parseFloat(intervalEl.value) || 1,
+      speed: parseFloat(speedEl.value) || 1,
+      voiceId: voiceEl.value || "",
+      lang: detectLang(text)
+    };
+  }
+
+  function updatePlayingUI() {
+    var playing = player.running;
+    $("play-preview").disabled = playing;
+    $("play-all").disabled = playing;
+    $("loop-all").disabled = playing;
+    $("stop-create").disabled = !playing;
+    if (playing && player.nowPlaying) {
+      nowEl.classList.add("show");
+      nowText.textContent = player.nowPlaying;
+    } else {
+      nowEl.classList.remove("show");
+      nowText.textContent = "";
+    }
+    renderLibrary();
+  }
+
+  function loadLoops() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY) || localStorage.getItem(LEGACY_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      var arr = Array.isArray(parsed) ? parsed : (parsed && parsed.loops) || [];
+      return arr.map(function (item) {
+        if (!item || typeof item !== "object") return null;
+        var text = String(item.text || "").trim();
+        if (!text) return null;
+        return {
+          id: item.id || uid(),
+          text: text,
+          interval: Number(item.interval) || 1,
+          speed: Number(item.speed) || 1,
+          voiceId: String(item.voiceId || item.voiceURI || ""),
+          lang: String(item.lang || "")
+        };
+      }).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLoops(loops) {
+    localStorage.setItem(STORE_KEY, JSON.stringify(loops));
+  }
+
+  function renderLibrary() {
+    var loops = loadLoops();
+    if (!loops.length) {
+      listEl.innerHTML = '<div class="empty">Nothing saved yet.<br>Write an affirmation on the Create tab and save it here.</div>';
+      return;
+    }
+    listEl.innerHTML = loops.map(function (item, index) {
+      var active = player.running && player.nowPlaying === item.text;
+      return (
+        '<div class="card" data-id="' + escapeHtml(item.id) + '">' +
+          "<p>" + escapeHtml(item.text) + "</p>" +
+          '<div class="meta">' + escapeHtml(String(item.interval)) + "s gap · " +
+            escapeHtml(String(item.speed)) + "x" + (active ? " · Playing" : "") + "</div>" +
+          '<div class="row">' +
+            '<button type="button" class="btn btn-play" data-act="play">Play</button>' +
+            '<button type="button" class="btn btn-stop" data-act="stop"' + (player.running ? "" : " disabled") + ">Stop</button>" +
+            '<button type="button" class="btn btn-edit" data-act="edit">Edit</button>' +
+            '<button type="button" class="btn btn-del" data-act="delete">Delete</button>' +
+            '<button type="button" class="btn btn-up" data-act="up"' + (index === 0 ? " disabled" : "") + ">Up</button>" +
+            '<button type="button" class="btn btn-down" data-act="down"' + (index === loops.length - 1 ? " disabled" : "") + ">Down</button>" +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function autosize() {
+    textEl.style.height = "auto";
+    textEl.style.height = Math.max(72, textEl.scrollHeight) + "px";
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("active", t.getAttribute("data-tab") === name);
+    });
+    document.querySelectorAll(".section").forEach(function (s) {
+      s.classList.toggle("active", s.id === name);
+    });
+  }
+
+  function triggerDownload(html) {
+    var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = FILE_NAME;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function downloadSelf() {
+    var fallback = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    fetch("/audio-loop-creator.html", { cache: "no-store" })
+      .then(function (res) { return res.ok ? res.text() : Promise.reject(); })
+      .then(triggerDownload)
+      .catch(function () { triggerDownload(fallback); });
+  }
+
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.addEventListener("click", function () { switchTab(tab.getAttribute("data-tab")); });
+  });
+
+  textEl.addEventListener("input", autosize);
+  textEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      e.preventDefault();
+      $("play-preview").click();
+    }
+  });
+  intervalEl.addEventListener("input", function () {
+    $("interval-value").textContent = parseFloat(intervalEl.value).toFixed(1) + "s";
+  });
+  speedEl.addEventListener("input", function () {
+    $("speed-value").textContent = parseFloat(speedEl.value).toFixed(2) + "x";
+  });
+
+  $("play-preview").addEventListener("click", function () {
+    var spec = currentSpec();
+    if (!spec.text) { showBanner("Enter text to repeat.", true); return; }
+    player.play([spec], true);
+  });
+  $("save-to-library").addEventListener("click", function () {
+    var spec = currentSpec();
+    if (!spec.text) { showBanner("Enter text to save.", true); return; }
+    var loops = loadLoops();
+    if (editingId) {
+      var i = loops.findIndex(function (l) { return l.id === editingId; });
+      if (i >= 0) loops[i] = Object.assign({}, loops[i], spec);
+      editingId = null;
+      $("save-to-library").textContent = "Save to Library";
+      showBanner("Loop updated.");
+    } else {
+      loops.push(Object.assign({ id: uid() }, spec));
+      showBanner("Saved to library.");
+    }
+    saveLoops(loops);
+    renderLibrary();
+  });
+  function stopAll() { player.stop(); showBanner(""); }
+  $("stop-create").addEventListener("click", stopAll);
+  $("stop-now").addEventListener("click", stopAll);
+  $("download-html").addEventListener("click", downloadSelf);
+
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var card = btn.closest("[data-id]");
+    var id = card && card.getAttribute("data-id");
+    var loops = loadLoops();
+    var index = loops.findIndex(function (l) { return l.id === id; });
+    var item = loops[index];
+    var act = btn.getAttribute("data-act");
+    if (act === "play" && item) player.play([item], true);
+    if (act === "stop") stopAll();
+    if (act === "delete" && item) {
+      loops.splice(index, 1);
+      saveLoops(loops);
+      renderLibrary();
+    }
+    if (act === "edit" && item) {
+      textEl.value = item.text;
+      intervalEl.value = item.interval;
+      speedEl.value = item.speed;
+      voiceEl.value = item.voiceId || "";
+      $("interval-value").textContent = Number(item.interval).toFixed(1) + "s";
+      $("speed-value").textContent = Number(item.speed).toFixed(2) + "x";
+      editingId = item.id;
+      $("save-to-library").textContent = "Update";
+      autosize();
+      switchTab("create");
+    }
+    if (act === "up" && index > 0) {
+      var up = loops[index - 1]; loops[index - 1] = loops[index]; loops[index] = up;
+      saveLoops(loops); renderLibrary();
+    }
+    if (act === "down" && index >= 0 && index < loops.length - 1) {
+      var down = loops[index + 1]; loops[index + 1] = loops[index]; loops[index] = down;
+      saveLoops(loops); renderLibrary();
+    }
+  });
+
+  $("play-all").addEventListener("click", function () {
+    var loops = loadLoops();
+    if (!loops.length) { showBanner("Library is empty.", true); return; }
+    player.play(loops, false);
+  });
+  $("loop-all").addEventListener("click", function () {
+    var loops = loadLoops();
+    if (!loops.length) { showBanner("Library is empty.", true); return; }
+    player.play(loops, true);
+  });
+
+  function clearSleep() {
+    if (sleepTimeout) clearTimeout(sleepTimeout);
+    if (countdownInterval) clearInterval(countdownInterval);
+    sleepTimeout = null;
+    countdownInterval = null;
+    sleepEndTime = null;
+    $("remaining-time").textContent = "";
+    $("clear-sleep-timer").hidden = true;
+  }
+
+  $("set-sleep-timer").addEventListener("click", function () {
+    var minutes = parseInt($("sleep-timer").value, 10);
+    if (isNaN(minutes) || minutes <= 0) {
+      showBanner("Enter a valid number of minutes.", true);
+      return;
+    }
+    clearSleep();
+    sleepEndTime = Date.now() + minutes * 60 * 1000;
+    sleepTimeout = setTimeout(function () {
+      player.stop();
+      clearSleep();
+      showBanner("Sleep timer ended.");
+    }, minutes * 60 * 1000);
+    $("clear-sleep-timer").hidden = false;
+    countdownInterval = setInterval(function () {
+      if (!sleepEndTime) return;
+      var remainingMs = sleepEndTime - Date.now();
+      if (remainingMs <= 0) {
+        $("remaining-time").textContent = "";
+        return;
+      }
+      var remainingMin = Math.floor(remainingMs / 60000);
+      var remainingSec = Math.ceil((remainingMs % 60000) / 1000);
+      $("remaining-time").textContent = "Remaining: " + remainingMin + " min " + remainingSec + " sec";
+    }, 1000);
+  });
+  $("clear-sleep-timer").addEventListener("click", clearSleep);
+
+  if (location.protocol !== "file:") {
+    $("save-html").style.display = "block";
+  }
+
+  if (supported()) {
+    renderVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", renderVoices);
+    [50, 150, 400, 1000, 2500].forEach(function (ms) { setTimeout(renderVoices, ms); });
+  } else {
+    showBanner("Speech synthesis is not available in this browser. Open Chrome or Safari.", true);
+  }
+
+  renderLibrary();
+  autosize();
+
+  try {
+    if (window.parent !== window) {
+      var channel = "grok-preview-bridge";
+      function post(msg) {
+        window.parent.postMessage(Object.assign({ channel: channel, version: 1 }, msg), "*");
+      }
+      function announce() {
+        post({ type: "location", path: location.pathname || "/", search: location.search, hash: location.hash });
+        post({ type: "routes", paths: ["/", "/audio-loop-creator.html"] });
+        post({ type: "ready" });
+      }
+      window.addEventListener("message", function (ev) {
+        var d = ev.data;
+        if (!d || d.channel !== channel) return;
+        if (d.type === "hello") announce();
+      });
+      announce();
+    }
+  } catch (e) { /* ignore */ }
+})();
+  </script>
 </body>
 </html>
